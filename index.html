@@ -91,6 +91,9 @@
       <div class="col text-center f-14">
         <a href="/milktea2020"> < 奶茶迷官網</a>
       </div>
+      <div class="col text-center f-14">
+        <a href="/milktea2020/mi/main">兌換奶茶 > </a>
+      </div>
     </div>
   </div>
 
@@ -197,8 +200,25 @@
             $( "body" ).append(object.form);
             object.form.submit();
             iframe.on('load',function(){
+              console.log($(this).html());
               $('#form'+$(this).data('time')).remove();
               $(this).remove();
+              console.log('iframe on load...');
+              status = v;
+            });
+        }
+    }
+
+
+    function iframeget(url) {
+        var object = this;
+        object.send = function(v) {
+            var iframe = $('<iframe src="'+url+'" style="display:none;"></iframe>');
+            $( "body" ).append(iframe);
+            iframe.on('load',function(){
+              console.log($(this).val());
+              // $('#form'+$(this).data('time')).remove();
+              // $(this).remove();
               console.log('iframe on load...');
               status = v;
             });
