@@ -97,6 +97,8 @@
   <script>
     var isBusy=false;
     var status='r';
+    var count=0;
+
     function doLogin() {
       console.log('doLogin');
       if (!$('#email').val()) {
@@ -117,43 +119,51 @@
 
       console.log('logining...');
       //進行登入
-      var dummy = new iframeform('https://www.niusnews.com/index.php/api/doLogin');
+      var dummy;
+
+      dummy = new iframeform('https://www.niusnews.com/index.php/api/doLogin');
       dummy.addParameter('email',$('#email').val());
       dummy.addParameter('pwd',$('#password').val());
       dummy.send('login1');
 
-      delay('login1').then(function(){
+      if (delay('login1')) {
         console.log('兌換密碼');
         dummy = new iframeform('https://www.niusnews.com/milktea2020/mi/doLogin');
         dummy.addParameter('password',$('#code').val());
         dummy.send('login2');
 
-        delay('login2').then(function(){
+        if (delay('login2')) {
           console.log('done...');
           location.href="https://www.niusnews.com/milktea2020/mi/main"
-        });
-      });
+        };
+      }
 
       console.log('end');
       isBusy = false;
     }
 
-    var count=0;
+
+    function sleep (time) {
+      return new Promise((resolve) => setTimeout(resolve, time));
+    }
 
     function delay(v) {
-      return new Promise(function (resolve, reject) {
-        setTimeout(function () {
+      (async function() {
+        while(status!=v){
           console.log('delay...');
-          if (status==v) resolve(true);
+          console.log(status,v);
+
+          await sleep(500);
+
+          count++;
           if (count > 10) {
             count=0;
             alert('連線超時!!!');
-            return;
+            return false;
           }
-          count++;
-          delay(v);
-        }, 500);
-      });
+        };
+      })();
+      return true;
     }
 
     // function delay(v){
@@ -189,6 +199,7 @@
             iframe.on('load',function(){
               $('#form'+$(this).data('time')).remove();
               $(this).remove();
+              console.log('iframe on load...');
               status = v;
             });
         }
