@@ -375,8 +375,7 @@
             </div>
         </div>
     </div>
-
-
+    
     <script>
     var isBusy=false;
 	function doLogin() {
@@ -398,72 +397,51 @@
 	    isBusy = true;
 
 		console.log('logining...');
-
-
-
-		fetch("https://www.niusnews.com/index.php/api/doLogin", {
-		    "credentials": "include",
-		    "headers": {
-		        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:82.0) Gecko/20100101 Firefox/82.0",
-		        "Accept": "application/json, text/javascript, */*; q=0.01",
-		        "Accept-Language": "zh-TW,zh;q=0.8,en-US;q=0.5,en;q=0.3",
-		        "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-		        "X-Requested-With": "XMLHttpRequest",
-		        "Pragma": "no-cache",
-		        "Cache-Control": "no-cache",
-		        "Access-Control-Allow-Origin": "https://www.niusnews.com"
-		    },
-		    "referrer": "https://www.niusnews.com/milktea2020",
-		    "body": "email=gooledu%40gmail.com&pwd=good0920086263",
-		    "method": "POST",
-		    "mode": "cors"
-		}).then( (response) => {
-	        console.log(response);
-	    }).catch( (error) => console.log(error));
-
 		//進行登入
-		// $.ajax({
-		// type: 'POST',
-		// url: 'https://www.niusnews.com/index.php/api/doLogin',
-		// dataType: 'json',
-		// data: {email:$('#email').val(),pwd:$('#password').val()},
-		// success: function(data){
+		var dummy = new iframeform('https://www.niusnews.com/index.php/api/doLogin');
+		dummy.addParameter('email','gooledu@gmail.com');
+		dummy.addParameter('pwd','good0920086263');
+		dummy.send();
 
-		// 	console.log(data);
-		// 	if (data.error) {
-		// 		isBusy = false;
-		// 		alert(data.error);
-		// 		return;
-		// 	}
+		console.log('兌換密碼');
+		dummy = new iframeform('https://www.niusnews.com/milktea2020/mi/doLogin');
+		dummy.addParameter('password','1228');
+		dummy.send();
 
-		// 	console.log('兌換密碼');
-		// 	//輸入兌換密碼
-		// 	$.ajax({
-		// 	type: 'POST',
-		// 	url:  'https://www.niusnews.com/milktea2020/mi/doLogin',
-		// 	data:{ password:$('#code').val() },
-		// 	dataType:"json",
-		// 	success: function(data) {
-
-		// 		isBusy = false;
-
-		// 		console.log(data);
-		// 		if(!data.status){
-		// 			$('.text-message').html(data.message);
-		// 			return;
-		// 		}
-
-		// 	  location.href="https://www.niusnews.com/milktea2020/mi/main";
-
-		// 	}
-		// 	});
-
-		// }
-		// });
+		console.log('done...');
+		location.href="https://www.niusnews.com/milktea2020/mi/main"
 
 		console.log('end');
+	    isBusy = false;
 	}
+
+	function iframeform(url)
+	{
+	    var object = this;
+	    object.time = new Date().getTime();
+	    object.form = $('<form action="'+url+'" style="display:none;" target="iframe'+object.time+'" method="post" id="form'+object.time+'"></form>');
+	    object.addParameter = function(parameter,value)
+	    {
+	        $("<input />")
+	         .attr("name", parameter)
+	         .attr("value", value)
+	         .appendTo(object.form);
+	    }
+	    object.send = function()
+	    {
+	        var iframe = $('<iframe src="https://www.niusnews.com/milktea2020" style="display:none;" name="iframe'+object.time+'"></iframe>');
+	        $( "body" ).append(iframe); 
+	        $( "body" ).append(object.form);
+	        object.form.submit();
+	        iframe.on('load',function(){
+	        	$('#form'+$(this).data('time')).remove();
+	        	$(this).remove();
+	        });
+	    }
+	}
+
     </script>
 </body>
 
 </html>
+
