@@ -96,43 +96,78 @@
 
   <script>
     var isBusy=false;
+    var status='r';
     function doLogin() {
       console.log('doLogin');
-        if (!$('#email').val()) {
-            alert("請輸入電子信箱");
-            return;
-        }
-        if (!$('#password').val()) {
-            alert("請輸入密碼");
-            return;
-        }
-        if (!$('#code').val()) {
-            alert("請輸入奶茶迷兌換密碼");
-            return;
-        }
+      if (!$('#email').val()) {
+          alert("請輸入電子信箱");
+          return;
+      }
+      if (!$('#password').val()) {
+          alert("請輸入密碼");
+          return;
+      }
+      if (!$('#code').val()) {
+          alert("請輸入奶茶迷兌換密碼");
+          return;
+      }
 
-        if (isBusy) return;
-        isBusy = true;
+      if (isBusy) return;
+      isBusy = true;
 
       console.log('logining...');
       //進行登入
       var dummy = new iframeform('https://www.niusnews.com/index.php/api/doLogin');
       dummy.addParameter('email',$('#email').val());
       dummy.addParameter('pwd',$('#password').val());
-      dummy.send();
+      dummy.send('login1');
 
-      console.log('兌換密碼');
-      dummy = new iframeform('https://www.niusnews.com/milktea2020/mi/doLogin');
-      dummy.addParameter('password',$('#code').val());
-      dummy.send();
+      delay('login1').then(function(){
+        console.log('兌換密碼');
+        dummy = new iframeform('https://www.niusnews.com/milktea2020/mi/doLogin');
+        dummy.addParameter('password',$('#code').val());
+        dummy.send('login2');
 
-      console.log('done...');
-      location.href="https://www.niusnews.com/milktea2020/mi/main"
+        delay('login2').then(function(){
+          console.log('done...');
+          location.href="https://www.niusnews.com/milktea2020/mi/main"
+        });
+      });
 
       console.log('end');
       isBusy = false;
     }
 
+    var count=0;
+
+    function delay(v) {
+      return new Promise(function (resolve, reject) {
+        setTimeout(function () {
+          console.log('delay...');
+          if (status==v) resolve(true);
+          if (count > 10) {
+            count=0;
+            alert('連線超時!!!');
+            return;
+          }
+          count++;
+          delay(v);
+        }, 500);
+      });
+    }
+
+    // function delay(v){
+    //   setTimeout(function(){
+    //     console.log('delay...');
+    //     if (status==v) return true;
+    //     if (count > 10) {
+    //       alert('連線超時!!!');
+    //       return false;
+    //     }
+    //     count++;
+    //     delay(v);
+    //   },500);
+    // }
 
     function iframeform(url) {
         var object = this;
@@ -146,7 +181,7 @@
              .appendTo(object.form);
         }
 
-        object.send = function() {
+        object.send = function(v) {
             var iframe = $('<iframe src="https://www.niusnews.com/milktea2020" style="display:none;" name="iframe'+object.time+'"></iframe>');
             $( "body" ).append(iframe); 
             $( "body" ).append(object.form);
@@ -154,6 +189,7 @@
             iframe.on('load',function(){
               $('#form'+$(this).data('time')).remove();
               $(this).remove();
+              status = v;
             });
         }
     }
