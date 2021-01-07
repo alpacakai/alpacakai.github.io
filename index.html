@@ -124,63 +124,32 @@
       //進行登入
       var dummy;
 
+      step1();
+
+      console.log('end');
+    }
+
+    function step1() {
+      status='step1';
       dummy = new iframeform('https://www.niusnews.com/index.php/api/doLogin');
       dummy.addParameter('email',$('#email').val());
       dummy.addParameter('pwd',$('#password').val());
-      dummy.send('login1');
-
-      if (delay('login1')) {
-        console.log('兌換密碼');
-        dummy = new iframeform('https://www.niusnews.com/milktea2020/mi/doLogin');
-        dummy.addParameter('password',$('#code').val());
-        dummy.send('login2');
-
-        if (delay('login2')) {
-          console.log('done...');
-          location.href="https://www.niusnews.com/milktea2020/mi/main"
-        };
-      }
-
-      console.log('end');
+      dummy.send();
+    }
+    function step2() {
+      status='step2';
+      console.log('兌換密碼');
+      dummy = new iframeform('https://www.niusnews.com/milktea2020/mi/doLogin');
+      dummy.addParameter('password',$('#code').val());
+      dummy.send();
+    }
+    function step3() {
+      status='step3';
+      console.log('done...');
+      location.href="https://www.niusnews.com/milktea2020/mi/main"
       isBusy = false;
     }
 
-
-    function sleep (time) {
-      return new Promise((resolve) => setTimeout(resolve, time));
-    }
-
-    function delay(v) {
-      (async function() {
-        while(status!=v){
-          console.log('delay...');
-          console.log(status,v);
-
-          await sleep(500);
-
-          count++;
-          if (count > 10) {
-            count=0;
-            alert('連線超時!!!');
-            return false;
-          }
-        };
-        return true;
-      })();
-    }
-
-    // function delay(v){
-    //   setTimeout(function(){
-    //     console.log('delay...');
-    //     if (status==v) return true;
-    //     if (count > 10) {
-    //       alert('連線超時!!!');
-    //       return false;
-    //     }
-    //     count++;
-    //     delay(v);
-    //   },500);
-    // }
 
     function iframeform(url) {
         var object = this;
@@ -194,36 +163,21 @@
              .appendTo(object.form);
         }
 
-        object.send = function(v) {
+        object.send = function() {
             var iframe = $('<iframe src="https://www.niusnews.com/milktea2020" style="display:none;" name="iframe'+object.time+'"></iframe>');
             $( "body" ).append(iframe); 
             $( "body" ).append(object.form);
             object.form.submit();
             iframe.on('load',function(){
-              console.log($(this).html());
+              console.log('iframe on load...');
               $('#form'+$(this).data('time')).remove();
               $(this).remove();
-              console.log('iframe on load...');
-              status = v;
+              if (status == 'step1') step2();
+              if (status == 'step2') step3();
             });
         }
     }
 
-
-    function iframeget(url) {
-        var object = this;
-        object.send = function(v) {
-            var iframe = $('<iframe src="'+url+'" style="display:none;"></iframe>');
-            $( "body" ).append(iframe);
-            iframe.on('load',function(){
-              console.log($(this).html());
-              // $('#form'+$(this).data('time')).remove();
-              // $(this).remove();
-              console.log('iframe on load...');
-              status = v;
-            });
-        }
-    }
   </script>
 </body>
 </html>
