@@ -9,6 +9,16 @@
     <link rel="stylesheet" href="/kanban/assets/index-374d6748.css">
   </head>
   <body>
+    <script>
+      (function(){
+        let redirect = sessionStorage.redirect;
+        delete sessionStorage.redirect;
+        if (redirect && redirect !== location.href) {
+          history.replaceState(null, null, redirect);
+        }
+      })();
+    </script>
+
     <div id="app"></div>
     <script>global = globalThis</script>
     
